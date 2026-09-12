@@ -14,7 +14,7 @@ npm install
 npm run dev
 ```
 
-App: **http://localhost:5173**
+App: **https://ivy-homes-taupe.vercel.app/**
 
 ### Demo accounts
 
