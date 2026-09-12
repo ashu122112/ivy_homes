@@ -2,7 +2,6 @@
 
 **Candidate:** Ashutosh Singh  
 **Email:** ashutosh.s@example.com  
-**API Key:** `IVY26-B5E34B131F2B`  
 **City:** Pune · **Assigned locality:** Magarpatta
 
 ---
