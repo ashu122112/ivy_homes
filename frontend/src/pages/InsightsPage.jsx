@@ -6,7 +6,22 @@ import {
   isFakeListing,
   projectPriceToInr,
 } from '../utils';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 import './DetailPages.css';
+
+const COLORS = ['#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+const PROJECT_COLORS = ['#3B82F6', '#EF4444'];
 
 export default function InsightsPage() {
   const { listings, rentals, projects, loading, error } = useData();
@@ -52,6 +67,20 @@ export default function InsightsPage() {
     const topLocalities = Object.entries(byLocality)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8);
+      
+    const localityData = topLocalities.map(([name, value]) => ({ name, value }));
+
+    const qualityData = [
+      { name: 'Active', value: active.length },
+      { name: 'Inactive', value: inactive },
+      { name: 'Corrupt', value: corrupt.length },
+      { name: 'Fake (Bait)', value: fake.length },
+    ];
+    
+    const projectAccuracyData = [
+      { name: 'Accurate Count', value: projects.length - wrong },
+      { name: 'Wrong Count', value: wrong },
+    ];
 
     return {
       total: listings.length,
@@ -64,6 +93,9 @@ export default function InsightsPage() {
       avg,
       costliest,
       topLocalities,
+      localityData,
+      qualityData,
+      projectAccuracyData,
       rentals: rentals.length,
       projects: projects.length,
     };
@@ -99,6 +131,48 @@ export default function InsightsPage() {
         the real endpoints, with warnings for documentation lies.
       </p>
 
+      {/* Visual Charts Section */}
+      <div className="chart-grid">
+        <div className="chart-card">
+          <h3>Active Listings by Locality</h3>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.localityData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={90} tick={{fontSize: 12}} />
+                <Tooltip cursor={{fill: '#F8FAFC'}} />
+                <Bar dataKey="value" fill="var(--primary-color)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        
+        <div className="chart-card">
+          <h3>Listing Data Quality</h3>
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.qualityData}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {stats.qualityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" height={36} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
       <div className="insight-grid">
         <div className="insight-card">
           <div className="label">Listings retrieved</div>
@@ -106,29 +180,29 @@ export default function InsightsPage() {
         </div>
         <div className="insight-card">
           <div className="label">Active (is_live)</div>
-          <div className="value">{stats.active}</div>
+          <div className="value" style={{ color: 'var(--success-color)' }}>{stats.active}</div>
         </div>
         <div className="insight-card">
           <div className="label">Inactive (should be hidden)</div>
-          <div className="value">{stats.inactive}</div>
+          <div className="value" style={{ color: 'var(--text-muted)' }}>{stats.inactive}</div>
         </div>
         <div className="insight-card">
           <div className="label">Corrupt listings</div>
-          <div className="value">{stats.corrupt}</div>
+          <div className="value" style={{ color: 'var(--danger-color)' }}>{stats.corrupt}</div>
         </div>
         <div className="insight-card">
           <div className="label">Fake bait listings</div>
-          <div className="value">{stats.fake}</div>
+          <div className="value" style={{ color: '#8B5CF6' }}>{stats.fake}</div>
         </div>
         <div className="insight-card">
           <div className="label">Magarpatta monthly rent</div>
-          <div className="value" style={{ fontSize: '1.1rem' }}>
+          <div className="value" style={{ fontSize: '1.25rem' }}>
             {formatINR(stats.magRent)}
           </div>
         </div>
         <div className="insight-card">
           <div className="label">Avg ₹/sqft active 2BHK</div>
-          <div className="value" style={{ fontSize: '1.1rem' }}>
+          <div className="value" style={{ fontSize: '1.25rem' }}>
             {formatINR(stats.avg)}
           </div>
         </div>
@@ -136,34 +210,18 @@ export default function InsightsPage() {
           <div className="label">Projects w/ wrong count</div>
           <div className="value">{stats.wrong}</div>
         </div>
-        <div className="insight-card">
+        <div className="insight-card" style={{ gridColumn: 'span 2' }}>
           <div className="label">Costliest project</div>
-          <div className="value" style={{ fontSize: '1rem' }}>
-            {stats.costliest?.project_id}
-            <div style={{ fontSize: '0.85rem', fontWeight: 500, marginTop: 4 }}>
+          <div className="value" style={{ fontSize: '1.1rem' }}>
+            {stats.costliest?.name || stats.costliest?.project_id}
+            <div style={{ fontSize: '0.95rem', fontWeight: 500, marginTop: 4, color: 'var(--primary-color)' }}>
               {formatINR(stats.costliest?.price_max_inr)}
             </div>
           </div>
         </div>
-        <div className="insight-card">
-          <div className="label">Rentals / Projects</div>
-          <div className="value" style={{ fontSize: '1.1rem' }}>
-            {stats.rentals} / {stats.projects}
-          </div>
-        </div>
       </div>
 
-      <h2 style={{ marginBottom: '0.75rem', fontSize: '1.1rem' }}>Active listings by locality</h2>
-      <div className="insight-grid" style={{ marginBottom: '2rem' }}>
-        {stats.topLocalities.map(([loc, count]) => (
-          <div className="insight-card" key={loc}>
-            <div className="label">{loc}</div>
-            <div className="value">{count}</div>
-          </div>
-        ))}
-      </div>
-
-      <h2 style={{ marginBottom: '0.75rem', fontSize: '1.1rem' }}>Documentation lies (surfaced)</h2>
+      <h2 style={{ marginBottom: '1rem', marginTop: '2rem', fontSize: '1.25rem' }}>Documentation lies (surfaced)</h2>
       <div className="lie-list">
         <div className="lie-item">
           <h3>Pagination</h3>
