@@ -3,8 +3,8 @@
   "candidate": {
     "name": "Ashutosh Singh",
     "email": "ashutosh.s@example.com",
-    "repo_url": "https://github.com/ashu122112/ivy-homes-assignment",
-    "demo_url": "REPLACE_WITH_DEPLOYED_FRONTEND_URL"
+    "repo_url": "https://github.com/ashu122112/ivy_homes",
+    "demo_url": "https://ivy-homes-taupe.vercel.app/"
   },
   "answers": {
     "total_listing_records": 3800,
