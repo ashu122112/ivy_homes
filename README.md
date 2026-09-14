@@ -1,7 +1,7 @@
 # Ivy Homes Internship Assignment
 
 **Candidate:** Ashutosh Singh  
-**Email:** ashutosh.s@example.com  
+**Email:** ashutosh202327@gmail.com  
 **City:** Pune · **Assigned locality:** Magarpatta
 
 ---
